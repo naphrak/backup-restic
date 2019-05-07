@@ -1,0 +1,34 @@
+{
+    "version": "0.1",
+    "backupset" :  [
+        {
+            "setname"               : "",
+            "host"                  : "",
+            "repository"            : "",
+            "password"              : "secretpassword",
+            "AWS_ACCESS_KEY_ID"     : "",
+            "AWS_SECRET_ACCESS_KEY" : "",
+            "tag"                   : "server-daily",
+            "excludefile"           : "",
+            "retentions_days"       : "14",
+            "retention_weeks"       : "16",
+            "retention_months"      : "18",
+            "retention_years"       : "3",
+            "srcdirs": [
+                                    "/home/username",
+                                    "/opt"
+                       ]
+        }
+    ],
+   "dbconfig" : [
+        {
+            "host"            : "127.0.0.1",
+            "port"            : "3306",
+            "user"            : "user",
+            "password"        : "dbpassword",
+            "database"        : "dbname",
+            "table"           : "tablename"
+        }
+	]
+}
+
