@@ -1,6 +1,7 @@
-$version = "0.0.2"
+$version = "0.0.3"
 #
 # Variables
+$confpath = $args[0]
 $restic_exe_linux = '/usr/local/bin/restic'
 $restic_exe_win   = 'C:\temp\restic_0.9.5_windows_amd64.exe'
 $mysql_dll_linux  = "$(Resolve-Path ~)/.config/restic/MySql.Data.dll"  
@@ -9,21 +10,6 @@ $currdate         = get-date -format "yyyy-MM-dd HH:mm"
 
 
 # Preparation
-$confpath = $args[0]
-IF ( test-path $confpath -ErrorAction Stop ) {
-   TRY {
-      $vars = Get-Content $confpath | ConvertFrom-json
-
-   }
-   CATCH {
-      Write-Host -ForegroundColor Red "ERROR: Syntax error parsing json config file!"
-      EXIT
-   }
-} ELSE {
-     Write-Host -ForegroundColor Red "Error: Missing config file ´"config.json´". Exiting!"
-     EXIT
-}
-
 IF ( ($env:processor_architecture).length -eq 0 ) {
    #write-host -foregroundcolor Yellow "Linux environment detected"
    $resticExePath = $restic_exe_linux
@@ -69,10 +55,16 @@ Function write2db( $querystring ) {
 #===========================================
 #== Main 
 #===========================================
-IF ( test-path $confpath ) {
-     $vars = Get-Content $confpath | ConvertFrom-json
+IF ( Test-Path $confpath -ErrorAction Stop ) {
+   TRY {
+      $vars = Get-Content $confpath | ConvertFrom-json -ErrorAction Stop
+   }
+   CATCH {
+      Write-Host -ForegroundColor Red "ERROR: Syntax error parsing json config file!"
+      EXIT
+   }
 } ELSE {
-     Write-Host -ForegroundColor Red "ERROR: Missing config file config.json. Exiting!"
+     Write-Host -ForegroundColor Red "Error: Missing config file ´"config.json´". Exiting!"
      EXIT
 }
 
@@ -88,7 +80,7 @@ $command = "$resticExePath init --verbose --json"
 $scriptblock = [ScriptBlock]::Create($command)
 $initjob = Start-Job -ScriptBlock $scriptblock 
 
-Wait-Job -Id $initjob.Id -Timeout 300 |Out-Null
+Wait-Job -Id $initjob.Id -Timeout 300 | Out-Null
 
 IF ( (get-job $initjob.id).State -eq 'Completed' ) {
    $logoutput = $initjob.ChildJobs.output
@@ -101,7 +93,7 @@ IF ( (get-job $initjob.id).State -eq 'Completed' ) {
 }
 
 
-# Restic Repo exists - Backing up 
+# Restic repo exists by now. Backing up. 
 FOREACH ($entry in $vars.backupset.srcdirs) {
    Write-Host -Foregroundcolor Yellow "Backing up: " $entry
 

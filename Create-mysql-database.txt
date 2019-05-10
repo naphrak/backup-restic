@@ -19,5 +19,5 @@ create TABLE hosts ( hostname varchar(30) NOT NULL,
                      data_added BIGINT,
                      total_files_processed BIGINT,
                      total_bytes_processed BIGINT,
-                     total_duration DOUBLE,
+                     total_duration BIGINT,
                      primary key (updatedate, setname, srcdir) );
